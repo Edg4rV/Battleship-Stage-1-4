@@ -125,7 +125,7 @@ public class Main {
 //            System.out.println("Error! You placed it too close to another one. Try again:\n");
 //        }
 
-        if (b_0 < b_1 && a_0 == a_1 || b_0 == b_1 && a_0 != a_1) {
+        if (b_0 < b_1 && a_0 == a_1 || b_0 == b_1 && a_0 < a_1 ) {
 
             for (int i = a_0 + 1; i <= a_1 + 1; i++) {
                 for (int j = b_0; j <= b_1; j++) {
@@ -138,7 +138,7 @@ public class Main {
                     matrix[i][j] = "O";
                 }
             }
-        } else if (a_0 > a_1) {
+        } else if (a_0 > a_1 && b_0 == b_1) {
             for (int i = a_1 + 1; i <= a_0 + 1; i++) {
                 for (int j = b_1; j <= b_0; j++) {
                     matrix[i][j] = "O";
@@ -222,7 +222,7 @@ public class Main {
                 }
 
 
-                if (Math.abs(b_1 - a_0) < 5 && a_0 == b_0) {
+                if (Math.abs(b_1 - a_0) < 4 && a_0 == b_0) {
                     System.out.println("Error! Wrong length of the Carrier! Try again:");
                 } else {
                     createBattlships(a, b);
@@ -409,8 +409,7 @@ public class Main {
                     char a0 = a.charAt(0);
                     a_0 = Integer.valueOf(a0) - 65;
 
-//            char b0 = a.charAt(1);
-//        int b_0 = Integer.valueOf(b0) - 48;
+
                     b_0 = 10;
 
                     char a1 = b.charAt(0);
@@ -536,7 +535,8 @@ public class Main {
 
                 boolean b2 = ((Math.abs(b_1 - b_0) < 1 || Math.abs(b_1 - b_0) > 2) && a_0 == a_1) || (b_0 == b_1 && Math.abs(a_1 - a_0) < 1);
                 if (a_0 > 0 && b_0 > 0) {
-                    if (matrix[a_0 - 1][b_0].equals("O") || matrix[a_0 + 2][b_0].equals("O") || matrix[a_0 + 2][b_1].equals("O") ||
+                    if (matrix[a_0 - 1][b_0].equals("O") || matrix[a_0 + 2][b_0].equals("O") || matrix[a_0 + 1][b_1].equals("O") ||
+                            matrix[a_1 - 1][b_0].equals("O") || matrix[a_1 + 1][b_0].equals("O") ||
                             matrix[a_0 - 1][b_1].equals("O") || matrix[a_0][b_0 - 1].equals("O") || matrix[a_0][b_1 + 1].equals("O")) {
                         System.out.println("Error! You placed it too close to another one. Try again:\n");
                     } else if (b2) {
@@ -548,7 +548,7 @@ public class Main {
                         i -= 1;
                     }
                 } else if (a_0 == 0 || b_0 == 0) {
-                    if (matrix[a_0 + 1][b_0].equals("O") || matrix[a_0 + 1][b_1].equals("O") ||
+                    if (matrix[a_0 + 1][b_0].equals("O") || matrix[a_0 + 2][b_1].equals("O") ||
                             matrix[a_0][b_0 - 1].equals("O") || matrix[a_0][b_1 + 1].equals("O")) {
                         System.out.println("Error! You placed it too close to another one. Try again:\n");
                     } else if (b2) {
@@ -567,11 +567,169 @@ public class Main {
             }
         }
     }
+
+    public static void shipShoot() {
+        Scanner scanner = new Scanner(System.in);
+        boolean flag = false;
+        int k = 17;
+
+        System.out.println("\nThe game starts!");
+
+        for (int i = 0; i < 11; i++) {
+            for (int j = 0; j < 11; j++) {
+                System.out.print(matrix[i][j] + " ");
+            }
+            System.out.println();
+        }
+//        System.out.println("Take a shot!");
+
+//            while (k != 0) {
+//                System.out.println("Take a shot!");
+//
+//                String a = scanner.next();
+//
+//
+//                int a_0 = 0;
+//                int b_0 = 0;
+//
+//                if (a.contains("10")) {
+//                    char a0 = a.charAt(0);
+//                    a_0 = Integer.valueOf(a0) - 65;
+//                    b_0 = 10;
+//
+//                    if (a_0 > 10 || b_0 > 10) {
+//                        System.out.println("Error! You entered the wrong coordinates! Try again:");
+//                    } else {
+//                        flag = true;
+//                    }
+//
+//                } else {
+//
+//                    char a0 = a.charAt(0);
+//                    a_0 = Integer.valueOf(a0) - 65;
+//
+//                    char b0 = a.charAt(1);
+//                    b_0 = Character.getNumericValue(b0);
+//
+//                    if (a_0 > 10 || b_0 > 10) {
+//                        System.out.println("Error! You entered the wrong coordinates! Try again:");
+//                    } else {
+//                        flag = true;
+//                    }
+//
+//                if (flag) {
+//                    if (matrix[a_0][b_0].equals("O")) {
+//                        matrix[a_0 + 1][b_0 + 1] = "X";
+//
+//                        k -= 1;
+//
+//
+//                        for (int i = 0; i < 11; i++) {
+//                            for (int j = 0; j < 11; j++) {
+//                                System.out.print(matrix[i][j] + " ");
+//                            }
+//                            System.out.println();
+//                        }
+//
+//                        System.out.println("\nYou hit a ship!");
+//
+//                    } else {
+//                        matrix[a_0 + 1][b_0 + 1] = "M";
+//
+//                        for (int i = 0; i < 11; i++) {
+//                            for (int j = 0; j < 11; j++) {
+//                                System.out.print(matrix[i][j] + " ");
+//                            }
+//                            System.out.println();
+//                        }
+//
+//                        System.out.println("\nYou missed!");
+//                    }
+//                }
+//            }
+//        }
+// -------------------------------- without 17 moves ----------------------------------------//
+
+        System.out.println("\nTake a shot!");
+        System.out.println();
+
+        while (k != 0) {
+            String a = scanner.next();
+            System.out.println();
+
+            int a_0 = 0;
+            int b_0 = 0;
+            int s = 0;
+            if (a.length() > 2) {
+                int c_0 = 0;
+                char a0 = a.charAt(0);
+                a_0 = Integer.valueOf(a0) - 65;
+                char b0 = a.charAt(1);
+                b_0 = Character.getNumericValue(b0);
+                char c0 = a.charAt(2);
+                c_0 = Character.getNumericValue(c0);
+                String convert = String.valueOf(b0) + String.valueOf(c0);
+                s = Integer.valueOf(convert);
+            } else {
+
+                if (a.contains("10")) {
+                    char a0 = a.charAt(0);
+                    a_0 = Integer.valueOf(a0) - 65;
+                    b_0 = 10;
+                } else {
+                    char a0 = a.charAt(0);
+                    a_0 = Integer.valueOf(a0) - 65;
+
+                    char b0 = a.charAt(1);
+                    b_0 = Character.getNumericValue(b0);
+                }
+            }
+
+            if (a_0 > 10 || b_0 > 10 || s > 10) {
+                System.out.println("Error! You entered the wrong coordinates! Try again:");
+                System.out.println();
+            } else {
+                flag = true;
+            }
+            if (flag) {
+                if (matrix[a_0 + 1][b_0].equals("O")) {
+                    matrix[a_0 + 1][b_0] = "X";
+
+                    k -= 1;
+
+
+                    for (int i = 0; i < 11; i++) {
+                        for (int j = 0; j < 11; j++) {
+                            System.out.print(matrix[i][j] + " ");
+                        }
+                        System.out.println();
+                    }
+
+                    System.out.println("\nYou hit a ship!");
+
+                } else {
+                    matrix[a_0 + 1][b_0] = "M";
+
+                    for (int i = 0; i < 11; i++) {
+                        for (int j = 0; j < 11; j++) {
+                            System.out.print(matrix[i][j] + " ");
+                        }
+                        System.out.println();
+                    }
+
+                    System.out.println("\nYou missed!");
+                }
+            }
+        }
+    }
+
+
     public static void main(String[] args) {
         createMatrix();
         checkShip();
+        shipShoot();
 
-        }
     }
+}
 
 
