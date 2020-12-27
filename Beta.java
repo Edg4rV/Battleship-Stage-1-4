@@ -1,341 +1,190 @@
 package battleship;
+
 import java.util.Scanner;
 
-public class Beta {
+public class Main {
+
+    public static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        // Declaring sea array
-        String[][] sea = new String[11][11];
 
-        //Setting 5 types of ships
-        shipType Aircraft = new shipType();
-        Aircraft.setShipName("Aircraft Carrier");
-        Aircraft.setShipLength(5);
+        String[] shipName = {"Aircraft Carrier", "Battleship", "Submarine", "Cruiser", "Destroyer"};
+        int[] shipLength = {5, 4, 3, 3, 2};
 
-        shipType Battleship = new shipType();
-        Battleship.setShipName("Battleship");
-        Battleship.setShipLength(4);
+        //making and printing scheme
+        char[][] scheme = makeScheme(10, 10);
+        printScheme(scheme);
 
-        shipType Submarine = new shipType();
-        Submarine.setShipName("Submarine");
-        Submarine.setShipLength(3);
+        //asking for coordinates and positioning of warships
+        for (int i = 0; i < 5; i++) {
+            System.out.println("Enter the coordinates of the " + shipName[i] + " (" + shipLength[i] + " cells):");
+            positioningScheme(scheme, shipName[i], shipLength[i]);
+            printScheme(scheme);
+        }
 
-        shipType Cruiser = new shipType();
-        Cruiser.setShipName("Cruiser");
-        Cruiser.setShipLength(3);
-
-        shipType Destroyer = new shipType();
-        Destroyer.setShipName("Destroyer");
-        Destroyer.setShipLength(2);
+        //starting the game
+        System.out.println("The game starts!");
+        printScheme(scheme);
+        shot(scheme);
+        printScheme(scheme);
+    }
 
 
-        // Creating a starting battlefield
-        for (int row = 0; row <= 10; row++) {
-            for (int col = 0; col <= 10; col++) {
+    public static char[][] makeScheme(int rows, int seatsInRow) {
 
-                if (row == 0 && col == 0) {
-                    sea[row][col] = " ";
-                } else if (row == 0) {
-                    sea[row][col] = String.format("%d", col);
-                } else if (col == 0) {
-                    sea[row][col] = String.format("%c", (char) (64 + row));
-                } else {
-                    sea[row][col] = "~";
+        char[][] cinemaHall = new char[rows + 1][seatsInRow + 2];
+        int rowsCounter = 65;
+        cinemaHall[0][0] = ' ';
+
+        for (int i = 0; i < rows; i++) {
+            cinemaHall[i][0] = (char) rowsCounter;
+            rowsCounter++;
+            for (int j = 1; j < seatsInRow + 1; j++) {
+                cinemaHall[i][j] = '~';
+            }
+        }
+        return cinemaHall;
+    }
+
+    public static void printScheme(char[][] cinemaHall) {
+
+        System.out.print("\n  ");
+        for (int i = 1; i < cinemaHall.length; i++) {
+            if (i < 10) {
+                System.out.print(i + " ");
+            } else {
+                System.out.print(i);
+            }
+        }
+        for (int i = 0; i < cinemaHall.length; i++) {
+            System.out.println();
+            for (int j = 0; j < cinemaHall[0].length; j++) {
+                System.out.print(cinemaHall[i][j] + " ");
+            }
+            //System.out.println();
+        }
+        System.out.println("\n");
+    }
+
+
+    public static void positioningScheme(char[][] scheme, String shipName, int shipLength) {
+
+        String coordinates = "";
+        //System.out.println("Enter the coordinates of the " + shipName + " (" + shipLength + " cells):");
+        coordinates = scanner.nextLine().toUpperCase();
+        String[] parts = coordinates.split("\\s+");
+        int realShipLength = 1;
+        boolean horizontalPosition = true;
+
+        int int1 = Integer.parseInt(parts[0].replaceAll("\\D+", ""));
+        int int2 = Integer.parseInt(parts[1].replaceAll("\\D+", ""));
+
+        char char1 = (parts[0].replaceAll("[0-9]", "")).charAt(0);
+        char char2 = (parts[1].replaceAll("[0-9]", "")).charAt(0);
+
+        if (char1 == char2) {
+            realShipLength = Math.abs(int1 - int2) + 1;
+        } else if (int1 == int2) {
+            realShipLength = Math.abs(char1 - char2) + 1;
+            horizontalPosition = false;
+        } else {
+            System.out.println("Error! Wrong ship location! Try again:");
+            positioningScheme(scheme, shipName, shipLength);
+            return;
+        }
+
+        if (realShipLength != shipLength) {
+            System.out.println(realShipLength + " " + shipLength);
+            System.out.println("Error! Wrong length of the " + shipName + "! Try again:");
+            positioningScheme(scheme, shipName, shipLength);
+            return;
+        }
+
+        for (int i = 0; i < realShipLength; i++) {
+            if (horizontalPosition) {
+                if (checkClosedPosition(scheme, char1 - 65, Math.min(int1, int2) + i)) {
+                    System.out.println("Error! You placed it too close to another one. Try again:");
+                    positioningScheme(scheme, shipName, shipLength);
+                    return;
+                }
+            } else {
+                if (checkClosedPosition(scheme, Math.min(char1, char2) - 65 + i, int1)) {
+                    System.out.println("Error! You placed it too close to another one. Try again:");
+                    positioningScheme(scheme, shipName, shipLength);
+                    return;
                 }
             }
         }
 
-        // Printing a starting battlefield
-        for (int row = 0; row <= 10; row++) {
-            for (int col = 0; col <= 10; col++) {
-                System.out.print(sea[row][col] + " ");
+        if (horizontalPosition) {
+            for (int i = 0; i < realShipLength; i++) {
+                scheme[char1 - 65][Math.min(int1, int2) + i] = 'O';
             }
-            System.out.println();
-        }
-
-        //Stage 1/5: Take position!
-
-        setUnit(sea, Aircraft);
-
-        // printing a starting battlefield
-        System.out.println();
-        for (int row = 0; row <= 10; row++) {
-            for (int col = 0; col <= 10; col++) {
-                System.out.print(sea[row][col] + " ");
+        } else {
+            for (int i = 0; i < realShipLength; i++) {
+                scheme[Math.min(char1, char2) - 65 + i][int1] = 'O';
             }
-            System.out.println();
-        }
-
-        setUnit(sea, Battleship);
-
-        // printing a starting battlefield
-        System.out.println();
-        for (int row = 0; row <= 10; row++) {
-            for (int col = 0; col <= 10; col++) {
-                System.out.print(sea[row][col] + " ");
-            }
-            System.out.println();
-        }
-
-        setUnit(sea, Submarine);
-
-        // printing a starting battlefield
-        System.out.println();
-        for (int row = 0; row <= 10; row++) {
-            for (int col = 0; col <= 10; col++) {
-                System.out.print(sea[row][col] + " ");
-            }
-            System.out.println();
-        }
-
-        setUnit(sea, Cruiser);
-
-        // printing a starting battlefield
-        System.out.println();
-        for (int row = 0; row <= 10; row++) {
-            for (int col = 0; col <= 10; col++) {
-                System.out.print(sea[row][col] + " ");
-            }
-            System.out.println();
-        }
-
-        setUnit(sea, Destroyer);
-
-        // printing a starting battlefield
-        System.out.println();
-        for (int row = 0; row <= 10; row++) {
-            for (int col = 0; col <= 10; col++) {
-                System.out.print(sea[row][col] + " ");
-            }
-            System.out.println();
         }
     }
 
+    public static boolean checkClosedPosition(char[][] scheme, int int1, int int2) {
+        boolean result = false;
 
-    public static void setUnit(String[][] sea, shipType unit) {
-        System.out.printf("\nEnter the coordinates of the %s (%d cells):\n\n", unit.getShipName(), unit.getShipLength());
-
-
-        Scanner scanner = new Scanner(System.in);
-
-
-        for (; ; ) {
-            // Entering input values
-            String startCoordinates = scanner.next();
-            String endCoordinates = scanner.next();
-
-            // Starting Coordinates parsing process
-            int rowStart = startCoordinates.charAt(0);
-            int colStart = 0;
-            if(startCoordinates.length() == 3) {
-                if((int)(startCoordinates.charAt(1)) == 49 && (int)(startCoordinates.charAt(2)) == 48)
-                    colStart = 10;
-            } else
-            colStart = startCoordinates.charAt(1);
-
-            // Ending Coordinates parsing process
-            int rowEnd = endCoordinates.charAt(0);
-            int colEnd = 0;
-            if(endCoordinates.length() == 3) {
-                if((int)(endCoordinates.charAt(1)) == 49 && (int)(endCoordinates.charAt(2)) == 48)
-                    colEnd = 10;
-            } else
-            colEnd = endCoordinates.charAt(1);
-
-
-
-            //Converting variables
-            int rowStartInt = rowStart - 64;
-            int rowEndInt = rowEnd - 64;
-
-            int colStartInt;
-            if(colStart == 10)
-                colStartInt = 10;
-            else
-                colStartInt = colStart - 48;
-
-            int colEndInt;
-            if(colEnd == 10)
-                colEndInt = 10;
-            else
-                colEndInt = colEnd - 48;
-
-            //Replacing variables if condition is true
-            if(rowEndInt < rowStartInt) {
-                int temp = rowStartInt;
-                rowStartInt = rowEndInt;
-                rowEndInt = temp;
+        if (int1 == 0) {
+            if (scheme[int1 + 1][int2] == 'O' ||
+                scheme[int1][int2 - 1] == 'O' ||
+                scheme[int1][int2 + 1] == 'O' ||
+                scheme[int1 + 1][int2 + 1] == 'O' ||
+                scheme[int1 + 1][int2 - 1] == 'O') {
+                result = true;
             }
-            if(colEndInt < colStartInt) {
-                int temp = colStartInt;
-                colStartInt = colEndInt;
-                colEndInt = temp;
+        } else {
+            if (scheme[int1 - 1][int2] == 'O' ||
+                scheme[int1 + 1][int2] == 'O' ||
+                scheme[int1][int2 + 1] == 'O' ||
+                scheme[int1][int2 - 1] == 'O' ||
+                scheme[int1 - 1][int2 - 1] == 'O' ||
+                scheme[int1 + 1][int2 + 1] == 'O' ||
+                scheme[int1 + 1][int2 - 1] == 'O') {
+                result = true;
             }
-
-
-            // Error checking
-            if ((rowStartInt != rowEndInt && colStartInt != colEndInt)) {
-                System.out.println("\nError! Wrong ship location! Try again:\n\n");
-                continue;
-            }
-            if ((rowEndInt - rowStartInt != unit.getShipLength() - 1 && colStartInt == colEndInt)
-                    || (colEndInt - colStartInt != unit.getShipLength() - 1) && rowStartInt == rowEndInt) {
-                System.out.printf("\nError! Wrong length of the %s! Try again:\n\n", unit.getShipName());
-                continue;
-            }
-            //Ship placing Errors
-            boolean errorFlag = false;
-            if (rowStartInt == rowEndInt) {
-                for (int j = colStartInt; j <= colEndInt; j++) {
-                    //1st Error
-                    if ("O".equals(sea[rowStartInt][j])) {
-                        System.out.println("\nError! This place is already taken!\n\n");
-                        errorFlag = true;
-                        break;
-                    }
-                    //2nd Error
-                    if((rowStartInt < 10 && rowEndInt < 10 && colStartInt < 10 && colEndInt < 10) && (
-                            ("O".equals(sea[rowStartInt - 1][j - 1]))
-                            || ("O".equals(sea[rowStartInt - 1][j]))
-                            || ("O".equals(sea[rowStartInt - 1][j + 1]))
-                            || ("O".equals(sea[rowStartInt][j + 1]))
-                            || ("O".equals(sea[rowStartInt + 1][j + 1]))
-                            || ("O".equals(sea[rowStartInt + 1][j]))
-                            || ("O".equals(sea[rowStartInt + 1][j - 1]))
-                            || ("O".equals(sea[rowStartInt][j - 1]))
-                    )) {
-                        System.out.println("\nError! You placed it too close to another one. Try again:\n\n");
-                        errorFlag = true;
-                        break;
-                    }
-                    //3d Error
-                    else if((rowStartInt == 10 && colEndInt < 10) && (
-                            ("O".equals(sea[rowStartInt - 1][j - 1]))
-                                    || ("O".equals(sea[rowStartInt - 1][j]))
-                                    || ("O".equals(sea[rowStartInt - 1][j + 1]))
-                                    || ("O".equals(sea[rowStartInt][j + 1]))
-                                    || ("O".equals(sea[rowStartInt][j - 1]))
-                    )) {
-                        System.out.println("\nError! You placed it too close to another one. Try again:\n\n");
-                        errorFlag = true;
-                        break;
-                    }
-                    //4th Error
-                    else if((rowStartInt == 10 && colEndInt == 10) && (
-                            ("O".equals(sea[rowStartInt - 1][j - 1]))
-                                    || ("O".equals(sea[rowStartInt - 1][j]))
-                                    || ("O".equals(sea[rowStartInt][j - 1]))
-                    )) {
-                        System.out.println("\nError! You placed it too close to another one. Try again:\n\n");
-                        errorFlag = true;
-                        break;
-                    }
-                    //5th Error
-                    else if((rowStartInt < 10 && colEndInt == 10) && (
-                            ("O".equals(sea[rowStartInt - 1][j - 1]))
-                                    || ("O".equals(sea[rowStartInt - 1][j]))
-                                    || ("O".equals(sea[rowStartInt][j - 1]))
-                                    || ("O".equals(sea[rowStartInt+1][j - 1]))
-                                    || ("O".equals(sea[rowStartInt+1][j]))
-                    )) {
-                        System.out.println("\nError! You placed it too close to another one. Try again:\n\n");
-                        errorFlag = true;
-                    }
-                }
-            } else if (colStartInt == colEndInt) {
-                for (int i = rowStartInt; i <= rowEndInt; i++) {
-                    //1 Error
-                    if ("O".equals(sea[i][colStartInt])) {
-                        System.out.println("\nError! This place is already taken!\n\n");
-                        errorFlag = true;
-                        break;
-                    }
-                    //2nd Error
-                    if ((rowStartInt < 10 && rowEndInt < 10 && colStartInt < 10 && colEndInt < 10) && ("O".equals(sea[i - 1][colStartInt - 1])
-                            || ("O".equals(sea[i][colStartInt - 1]))
-                            || ("O".equals(sea[i + 1][colStartInt - 1]))
-                            || ("O".equals(sea[i - 1][colStartInt]))
-                            || ("O".equals(sea[i + 1][colStartInt]))
-                            || ("O".equals(sea[i - 1][colStartInt + 1]))
-                            || ("O".equals(sea[i + 1][colStartInt + 1]))
-                            || ("O".equals(sea[i][colStartInt + 1]))
-                    )) {
-                        System.out.println("\nError! You placed it too close to another one. Try again:\n\n");
-                        errorFlag = true;
-                        break;
-                    }
-                    //3rd Error
-                    if ((colStartInt == 10 && rowEndInt < 10) && ("O".equals(sea[i - 1][colStartInt - 1])
-                            || ("O".equals(sea[i][colStartInt - 1]))
-                            || ("O".equals(sea[i + 1][colStartInt - 1]))
-                            || ("O".equals(sea[i - 1][colStartInt]))
-                            || ("O".equals(sea[i + 1][colStartInt]))
-                    )) {
-                        System.out.println("\nError! You placed it too close to another one. Try again:\n\n");
-                        errorFlag = true;
-                        break;
-                    }
-                    //4th Error
-                    if ((colStartInt == 10 && rowEndInt == 10) && ("O".equals(sea[i - 1][colStartInt - 1])
-                            || ("O".equals(sea[i][colStartInt - 1]))
-                            || ("O".equals(sea[i - 1][colStartInt]))
-                    )) {
-                        System.out.println("\nError! You placed it too close to another one. Try again:\n\n");
-                        errorFlag = true;
-                        break;
-                    }
-                    //5th Error
-                    if ((colStartInt < 10 && rowEndInt == 10) && ("O".equals(sea[i - 1][colStartInt - 1])
-                            || ("O".equals(sea[i][colStartInt - 1]))
-                            || ("O".equals(sea[i - 1][colStartInt]))
-                            || ("O".equals(sea[i - 1][colStartInt + 1]))
-                            || ("O".equals(sea[i][colStartInt + 1]))
-                    )) {
-                        System.out.println("\nError! You placed it too close to another one. Try again:\n\n");
-                        errorFlag = true;
-                        break;
-                    }
-                }
-            }
-            if (errorFlag) {
-                continue;
-            }
-
-
-            // Setting the Aircraft
-
-            if (rowStartInt == rowEndInt) {
-                for (int j = colStartInt; j <= colEndInt; j++) {
-                    sea[rowStartInt][j] = "O";
-                }
-                break;
-            } else if (colStartInt == colEndInt) {
-                for (int i = rowStartInt; i <= rowEndInt; i++) {
-                    sea[i][colStartInt] = "O";
-                }
-                break;
-            }
-
         }
-    }
-}
-
- class shipType {
-    String shipName;
-    int shipLength;
-
-    public void setShipName(String name) {
-        this.shipName = name;
+        return result;
     }
 
-    public void setShipLength(int len) {
-     this.shipLength = len;
-    }
+    public static void shot(char[][] scheme) {
+        boolean error;
+        String coordinates = "";
+        int int1 = 0;
+        int int2 = 0;
 
-    public String getShipName() {
-        return this.shipName;
-    }
-    public int getShipLength() {
-        return this.shipLength;
+        System.out.println("Take a shot!");
+        do {
+            error = false;
+            coordinates = scanner.nextLine().toUpperCase();
+
+            try {
+                int1 = coordinates.charAt(0) - 65;
+                int2 = Integer.parseInt(coordinates.substring(1));
+            } catch (Exception e) {
+                System.out.println("Error! You entered the wrong coordinates! Try again:");
+                error =true;
+            }
+
+            if (int1 > 10 || int1 < 0 || int2 > 10 || int2 < 0) {
+                System.out.println("Error! You entered the wrong coordinates! Try again:");
+                error = true;
+            }
+        } while (error);
+
+        if (scheme[int1][int2] == 'O') {
+            scheme[int1][int2] = 'X';
+            printScheme(scheme);
+            System.out.println("You hit a ship!");
+        } else {
+            scheme[int1][int2] = 'M';
+            printScheme(scheme);
+            System.out.println("You missed!");
+        }
     }
 }
